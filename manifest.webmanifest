@@ -2,20 +2,21 @@
   "name": "Time Zone Calculator",
   "short_name": "TimeCalc",
   "description": "Calculate time differences between Peru, UK and other countries with ease",
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4F46E5",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/icons/globe-192x192.png",
+      "src": "globe-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/icons/globe-512x512.png",
+      "src": "globe-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
