@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#4F46E5">
   <title>Time Zone Calculator</title>
   
-  <link rel="manifest" href="manifest.json">
+  <link rel="manifest" href="./manifest.webmanifest">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🌍</text></svg>">
   
   <style>
@@ -388,7 +388,7 @@
       setInterval(updateTimes, 1000);
       
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js').catch(() => {});
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
       }
     }
     
