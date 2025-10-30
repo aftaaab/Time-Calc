@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Time Zone Calculator - Calculate time differences between Peru, UK and other countries">
+  <meta name="theme-color" content="#4F46E5">
+  <title>Time Zone Calculator</title>
+  
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='0.9em' font-size='90'>🌍</text></svg>">
+  
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+      min-height: 100vh;
+      padding: 1rem;
+    }
+    
+    .container { max-width: 48rem; margin: 0 auto; }
+    
+    .card {
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    
+    .title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #1F2937;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    
+    .lang-buttons { display: flex; gap: 0.5rem; }
+    
+    .lang-btn {
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .lang-btn.active { background: #4F46E5; color: white; }
+    .lang-btn:not(.active) { background: #E5E7EB; color: #374151; }
+    .lang-btn:not(.active):hover { background: #D1D5DB; }
+    
+    .section-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1F2937;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .time-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    @media (min-width: 768px) {
+      .time-grid { grid-template-columns: 1fr 1fr; }
+    }
+    
+    .time-box { padding: 1rem; border-radius: 0.75rem; }
+    .time-box.box1 { background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%); }
+    .time-box.box2 { background: linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%); }
+    .time-box.result1 { background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); }
+    .time-box.result2 { background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); }
+    
+    select, input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #D1D5DB;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+    
+    select:focus, input:focus {
+      outline: none;
+      border-color: #4F46E5;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+    }
+    
+    .time-display {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.25rem;
+    }
+    
+    .box1 .time-display { color: #4F46E5; }
+    .box2 .time-display { color: #7C3AED; }
+    .result1 .time-display { color: #059669; }
+    .result2 .time-display { color: #2563EB; }
+    
+    .date-display { font-size: 0.875rem; color: #6B7280; }
+    
+    .difference {
+      text-align: center;
+      padding: 1rem;
+      border-top: 1px solid #E5E7EB;
+      margin-top: 1rem;
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #374151;
+    }
+    
+    .difference span { color: #4F46E5; }
+    
+    .format-toggle {
+      padding: 0.375rem 0.75rem;
+      border-radius: 0.375rem;
+      border: 1px solid #D1D5DB;
+      background: white;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #374151;
+    }
+    
+    .format-toggle:hover {
+      background: #F3F4F6;
+      border-color: #9CA3AF;
+    }
+    
+    .format-toggle.active-24 {
+      background: #4F46E5;
+      color: white;
+      border-color: #4F46E5;
+    }
+    
+    .bst-toggle { display: flex; justify-content: center; margin-top: 1rem; }
+    
+    .bst-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      border: 2px solid;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .bst-btn.bst { background: #FEF3C7; color: #92400E; border-color: #FCD34D; }
+    .bst-btn.gmt { background: #DBEAFE; color: #1E40AF; border-color: #93C5FD; }
+    
+    .input-group { display: flex; flex-direction: column; margin-bottom: 1rem; }
+    .input-group label { font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem; }
+    
+    .offset-controls { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .offset-controls input { flex: 1; min-width: 150px; margin-bottom: 0; }
+    
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    
+    .btn-add { background: #10B981; color: white; }
+    .btn-add:hover { background: #059669; }
+    .btn-add.inactive { background: #E5E7EB; color: #374151; }
+    
+    .btn-subtract { background: #EF4444; color: white; }
+    .btn-subtract:hover { background: #DC2626; }
+    .btn-subtract.inactive { background: #E5E7EB; color: #374151; }
+    
+    .result-label { font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem; }
+    
+    #resultsContainer {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    
+    @media (min-width: 768px) {
+      #resultsContainer.show-both {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    .footer { text-align: center; margin-top: 1.5rem; font-size: 0.875rem; color: #6B7280; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <div class="title">
+          <span style="font-size: 2rem;">🌍</span>
+          <span id="appTitle">Time Zone Calculator</span>
+        </div>
+        <div class="lang-buttons">
+          <button class="lang-btn active" onclick="setLanguage('en')">EN</button>
+          <button class="lang-btn" onclick="setLanguage('es')">ES</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">
+        <span>⏰</span>
+        <span id="currentTimeTitle">Current Time</span>
+      </h2>
+      
+      <div class="time-grid">
+        <div class="time-box box1">
+          <select id="country1" onchange="updateTimes()"></select>
+          <div class="time-display" id="time1">--:--:--</div>
+          <div class="date-display" id="date1">---</div>
+        </div>
+
+        <div class="time-box box2">
+          <select id="country2" onchange="updateTimes()"></select>
+          <div class="time-display" id="time2">--:--:--</div>
+          <div class="date-display" id="date2">---</div>
+        </div>
+      </div>
+
+      <div class="difference">
+        <div style="margin-bottom: 0.5rem;">
+          <span id="differenceLabel">Difference:</span> <span id="differenceValue">0h 0m</span>
+        </div>
+        <button class="format-toggle" id="formatToggle" onclick="toggle24HourFormat()">
+          <span id="formatToggleText">12hr</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="section-title">
+        <span>🧮</span>
+        <span id="calculatorTitle">Time Calculator</span>
+      </h2>
+
+      <div class="input-group">
+        <label id="startDateLabel">Start Date</label>
+        <input type="date" id="calculatorDate" oninput="calculateResult()">
+      </div>
+
+      <div class="input-group">
+        <label id="startTimeLabel">Start Time</label>
+        <input type="time" id="calculatorTime" value="07:00" oninput="calculateResult()">
+      </div>
+
+      <div class="input-group">
+        <label id="baseTimezoneLabel">Start Time is in:</label>
+        <select id="baseTimezone" onchange="calculateResult()"></select>
+        <small style="color: #6B7280; margin-top: 0.25rem; display: block;" id="exampleText">
+          Example: "14 hours after 7:00 AM in Peru"
+        </small>
+      </div>
+
+      <div class="input-group">
+        <label id="offsetLabel">Hours Offset</label>
+        <div class="offset-controls">
+          <input type="number" id="hoursOffset" value="14" min="0" oninput="calculateResult()">
+          <button class="btn btn-add" id="addBtn" onclick="setOperation('add')">
+            ➕ <span id="addText">Add</span>
+          </button>
+          <button class="btn btn-subtract inactive" id="subtractBtn" onclick="setOperation('subtract')">
+            ➖ <span id="subtractText">Subtract</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="resultsContainer">
+        <div class="time-box result1" id="resultBox1" style="max-width: 100%;">
+          <div class="result-label" id="result1Label">Result in Peru</div>
+          <div class="time-display" id="resultTime1">--:--:--</div>
+          <div class="date-display" id="resultDate1">---</div>
+        </div>
+
+        <div class="time-box result2" id="resultBox2" style="max-width: 100%;">
+          <div class="result-label" id="result2Label">Result in UK</div>
+          <div class="time-display" id="resultTime2">--:--:--</div>
+          <div class="date-display" id="resultDate2">---</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer" id="footerText">Installable as app</div>
+  </div>
+
+  <script>
+    let currentLanguage = 'en';
+    let isAddition = true;
+    let use24Hour = true;
+    
+    const translations = {
+      en: {
+        appTitle: 'Time Zone Calculator',
+        currentTimeTitle: 'Current Time',
+        calculatorTitle: 'Time Calculator',
+        difference: 'Difference:',
+        startDateLabel: 'Start Date',
+        startTimeLabel: 'Start Time',
+        baseTimezoneLabel: 'Start Time is in:',
+        offsetLabel: 'Hours Offset',
+        add: 'Add',
+        subtract: 'Subtract',
+        resultIn: 'Result in',
+        exampleText: 'Example: "14 hours after 7:00 AM in Peru"',
+        footerText: 'Installable as app'
+      },
+      es: {
+        appTitle: 'Calculadora de Zonas Horarias',
+        currentTimeTitle: 'Hora Actual',
+        calculatorTitle: 'Calculadora de Tiempo',
+        difference: 'Diferencia:',
+        startDateLabel: 'Fecha Inicial',
+        startTimeLabel: 'Hora Inicial',
+        baseTimezoneLabel: 'La hora inicial es en:',
+        offsetLabel: 'Horas a Sumar/Restar',
+        add: 'Sumar',
+        subtract: 'Restar',
+        resultIn: 'Resultado en',
+        exampleText: 'Ejemplo: "14 horas después de las 7:00 AM en Perú"',
+        footerText: 'Instalable como aplicación'
+      }
+    };
+    
+    const countries = [
+      { value: 'America/Lima', label: 'Peru (Lima)', labelEs: 'Perú (Lima)' },
+      { value: 'Europe/London', label: 'United Kingdom (London)', labelEs: 'Reino Unido (Londres)' },
+      { value: 'America/New_York', label: 'USA (New York)', labelEs: 'EE.UU (Nueva York)' },
+      { value: 'America/Los_Angeles', label: 'USA (Los Angeles)', labelEs: 'EE.UU (Los Ángeles)' },
+      { value: 'America/Chicago', label: 'USA (Chicago)', labelEs: 'EE.UU (Chicago)' },
+      { value: 'America/Mexico_City', label: 'Mexico (Mexico City)', labelEs: 'México (Ciudad de México)' },
+      { value: 'America/Bogota', label: 'Colombia (Bogotá)', labelEs: 'Colombia (Bogotá)' },
+      { value: 'America/Buenos_Aires', label: 'Argentina (Buenos Aires)', labelEs: 'Argentina (Buenos Aires)' },
+      { value: 'America/Sao_Paulo', label: 'Brazil (São Paulo)', labelEs: 'Brasil (São Paulo)' },
+      { value: 'Europe/Madrid', label: 'Spain (Madrid)', labelEs: 'España (Madrid)' },
+      { value: 'Europe/Paris', label: 'France (Paris)', labelEs: 'Francia (París)' },
+      { value: 'Europe/Berlin', label: 'Germany (Berlin)', labelEs: 'Alemania (Berlín)' },
+      { value: 'Asia/Tokyo', label: 'Japan (Tokyo)', labelEs: 'Japón (Tokio)' },
+      { value: 'Asia/Shanghai', label: 'China (Shanghai)', labelEs: 'China (Shanghái)' },
+      { value: 'Asia/Dubai', label: 'UAE (Dubai)', labelEs: 'EAU (Dubái)' },
+      { value: 'Australia/Sydney', label: 'Australia (Sydney)', labelEs: 'Australia (Sídney)' }
+    ];
+    
+    function init() {
+      // Set default date to today
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      document.getElementById('calculatorDate').value = `${yyyy}-${mm}-${dd}`;
+      
+      // Set initial format toggle state
+      document.getElementById('formatToggle').classList.add('active-24');
+      document.getElementById('formatToggleText').textContent = '24hr';
+      
+      populateSelects();
+      updateLanguage();
+      updateTimes();
+      calculateResult();
+      setInterval(updateTimes, 1000);
+      
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      }
+    }
+    
+    function toggle24HourFormat() {
+      use24Hour = !use24Hour;
+      const toggleBtn = document.getElementById('formatToggle');
+      const toggleText = document.getElementById('formatToggleText');
+      
+      if (use24Hour) {
+        toggleBtn.classList.add('active-24');
+        toggleText.textContent = '24hr';
+      } else {
+        toggleBtn.classList.remove('active-24');
+        toggleText.textContent = '12hr';
+      }
+      
+      updateTimes();
+      calculateResult();
+    }
+    
+    function populateSelects() {
+      const select1 = document.getElementById('country1');
+      const select2 = document.getElementById('country2');
+      const baseTimezone = document.getElementById('baseTimezone');
+      
+      countries.forEach(country => {
+        const option1 = document.createElement('option');
+        option1.value = country.value;
+        option1.textContent = country.label;
+        select1.appendChild(option1);
+        
+        const option2 = document.createElement('option');
+        option2.value = country.value;
+        option2.textContent = country.label;
+        select2.appendChild(option2);
+        
+        const option3 = document.createElement('option');
+        option3.value = country.value;
+        option3.textContent = country.label;
+        baseTimezone.appendChild(option3);
+      });
+      
+      select1.value = 'America/Lima';
+      select2.value = 'Europe/London';
+      baseTimezone.value = 'America/Lima';
+    }
+    
+    function setLanguage(lang) {
+      currentLanguage = lang;
+      document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      updateLanguage();
+    }
+    
+    function updateLanguage() {
+      const t = translations[currentLanguage];
+      
+      document.getElementById('appTitle').textContent = t.appTitle;
+      document.getElementById('currentTimeTitle').textContent = t.currentTimeTitle;
+      document.getElementById('calculatorTitle').textContent = t.calculatorTitle;
+      document.getElementById('differenceLabel').textContent = t.difference;
+      document.getElementById('startDateLabel').textContent = t.startDateLabel;
+      document.getElementById('startTimeLabel').textContent = t.startTimeLabel;
+      document.getElementById('baseTimezoneLabel').textContent = t.baseTimezoneLabel;
+      document.getElementById('offsetLabel').textContent = t.offsetLabel;
+      document.getElementById('addText').textContent = t.add;
+      document.getElementById('subtractText').textContent = t.subtract;
+      document.getElementById('footerText').textContent = t.footerText;
+      document.getElementById('exampleText').textContent = t.exampleText;
+      
+      const select1 = document.getElementById('country1');
+      const select2 = document.getElementById('country2');
+      const baseTimezone = document.getElementById('baseTimezone');
+      const labelKey = currentLanguage === 'es' ? 'labelEs' : 'label';
+      
+      Array.from(select1.options).forEach((option, i) => {
+        option.textContent = countries[i][labelKey];
+      });
+      Array.from(select2.options).forEach((option, i) => {
+        option.textContent = countries[i][labelKey];
+      });
+      Array.from(baseTimezone.options).forEach((option, i) => {
+        option.textContent = countries[i][labelKey];
+      });
+      
+      calculateResult();
+    }
+    
+    function formatTime(date, timezone) {
+      const locale = use24Hour ? 'en-GB' : 'en-US';
+      return date.toLocaleString(locale, {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: !use24Hour,
+        timeZone: timezone
+      });
+    }
+    
+    function formatDate(date, timezone) {
+      const locale = currentLanguage === 'es' ? 'es-ES' : 'en-GB';
+      return date.toLocaleString(locale, {
+        weekday: 'short',
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        timeZone: timezone
+      });
+    }
+    
+    function updateTimes() {
+      const now = new Date();
+      const country1 = document.getElementById('country1').value;
+      const country2 = document.getElementById('country2').value;
+      
+      document.getElementById('time1').textContent = formatTime(now, country1);
+      document.getElementById('date1').textContent = formatDate(now, country1);
+      document.getElementById('time2').textContent = formatTime(now, country2);
+      document.getElementById('date2').textContent = formatDate(now, country2);
+      
+      const tz1 = country1;
+      const tz2 = country2;
+      const time1 = new Date(now.toLocaleString('en-US', { timeZone: tz1 }));
+      const time2 = new Date(now.toLocaleString('en-US', { timeZone: tz2 }));
+      const diffMs = Math.abs(time1 - time2);
+      const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+      const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+      
+      document.getElementById('differenceValue').textContent = `${diffHours}h ${diffMinutes}m`;
+    }
+    
+    function setOperation(operation) {
+      isAddition = operation === 'add';
+      const addBtn = document.getElementById('addBtn');
+      const subtractBtn = document.getElementById('subtractBtn');
+      
+      if (isAddition) {
+        addBtn.classList.remove('inactive');
+        subtractBtn.classList.add('inactive');
+      } else {
+        addBtn.classList.add('inactive');
+        subtractBtn.classList.remove('inactive');
+      }
+      
+      calculateResult();
+    }
+    
+    function calculateResult() {
+      const dateStr = document.getElementById('calculatorDate').value;
+      const timeStr = document.getElementById('calculatorTime').value;
+      const offset = parseInt(document.getElementById('hoursOffset').value) || 0;
+      const baseTimezone = document.getElementById('baseTimezone').value;
+      const [hours, minutes] = timeStr.split(':').map(Number);
+      
+      // Parse the date
+      const [year, month, day] = dateStr.split('-').map(Number);
+      
+      // Create a date object for the specified date and time in LOCAL browser time
+      // We'll treat this as if it's in the base timezone
+      const localDate = new Date(year, month - 1, day, hours, minutes, 0, 0);
+      
+      // Get what "now" looks like in the base timezone vs UTC to calculate offset
+      const now = new Date();
+      const nowInBase = new Date(now.toLocaleString('en-US', { timeZone: baseTimezone }));
+      const nowInUTC = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }));
+      const timezoneOffsetMs = nowInBase.getTime() - nowInUTC.getTime();
+      
+      // Adjust our local date by the timezone offset to get the correct UTC time
+      const baseDate = new Date(localDate.getTime() - timezoneOffsetMs);
+      
+      // Apply the hour offset
+      const offsetMs = offset * 60 * 60 * 1000;
+      const resultDate = new Date(baseDate.getTime() + (isAddition ? offsetMs : -offsetMs));
+      
+      const country1 = document.getElementById('country1').value;
+      const country2 = document.getElementById('country2').value;
+      
+      // Determine which result boxes to show
+      const isPeru = 'America/Lima';
+      const isUK = 'Europe/London';
+      const resultsContainer = document.getElementById('resultsContainer');
+      const resultBox1 = document.getElementById('resultBox1');
+      const resultBox2 = document.getElementById('resultBox2');
+      
+      // Logic: 
+      // - If baseTimezone is Peru, show only UK result
+      // - If baseTimezone is UK, show only Peru result
+      // - Otherwise, show both
+      
+      if (baseTimezone === isPeru) {
+        // Show only UK result
+        resultBox1.style.display = 'none';
+        resultBox2.style.display = 'block';
+        resultsContainer.classList.remove('show-both');
+        
+        document.getElementById('result2Label').textContent = 
+          `${translations[currentLanguage].resultIn} ${countries.find(c => c.value === isUK)?.[currentLanguage === 'es' ? 'labelEs' : 'label']}`;
+        document.getElementById('resultTime2').textContent = formatTime(resultDate, isUK);
+        document.getElementById('resultDate2').textContent = formatDate(resultDate, isUK);
+        
+      } else if (baseTimezone === isUK) {
+        // Show only Peru result
+        resultBox1.style.display = 'block';
+        resultBox2.style.display = 'none';
+        resultsContainer.classList.remove('show-both');
+        
+        document.getElementById('result1Label').textContent = 
+          `${translations[currentLanguage].resultIn} ${countries.find(c => c.value === isPeru)?.[currentLanguage === 'es' ? 'labelEs' : 'label']}`;
+        document.getElementById('resultTime1').textContent = formatTime(resultDate, isPeru);
+        document.getElementById('resultDate1').textContent = formatDate(resultDate, isPeru);
+        
+      } else {
+        // Show both results
+        resultBox1.style.display = 'block';
+        resultBox2.style.display = 'block';
+        resultsContainer.classList.add('show-both');
+        
+        document.getElementById('result1Label').textContent = 
+          `${translations[currentLanguage].resultIn} ${countries.find(c => c.value === country1)?.[currentLanguage === 'es' ? 'labelEs' : 'label']}`;
+        document.getElementById('resultTime1').textContent = formatTime(resultDate, country1);
+        document.getElementById('resultDate1').textContent = formatDate(resultDate, country1);
+        
+        document.getElementById('result2Label').textContent = 
+          `${translations[currentLanguage].resultIn} ${countries.find(c => c.value === country2)?.[currentLanguage === 'es' ? 'labelEs' : 'label']}`;
+        document.getElementById('resultTime2').textContent = formatTime(resultDate, country2);
+        document.getElementById('resultDate2').textContent = formatDate(resultDate, country2);
+      }
+    }
+    
+    init();
+  </script>
+</body>
+</html>
